@@ -25,7 +25,10 @@ class BaseResolver:
     @classmethod
     def add_implicit_resolver(cls, tag, regexp, first):
         if not 'yaml_implicit_resolvers' in cls.__dict__:
-            cls.yaml_implicit_resolvers = cls.yaml_implicit_resolvers.copy()
+            implicit_resolvers = {}
+            for key in cls.yaml_implicit_resolvers:
+                implicit_resolvers[key] = cls.yaml_implicit_resolvers[key][:]
+            cls.yaml_implicit_resolvers = implicit_resolvers
         if first is None:
             first = [None]
         for ch in first:
@@ -143,8 +146,8 @@ class BaseResolver:
                 resolvers = self.yaml_implicit_resolvers.get('', [])
             else:
                 resolvers = self.yaml_implicit_resolvers.get(value[0], [])
-            resolvers += self.yaml_implicit_resolvers.get(None, [])
-            for tag, regexp in resolvers:
+            wildcard_resolvers = self.yaml_implicit_resolvers.get(None, [])
+            for tag, regexp in resolvers + wildcard_resolvers:
                 if regexp.match(value):
                     return tag
             implicit = implicit[1]
@@ -174,7 +177,7 @@ Resolver.add_implicit_resolver(
 Resolver.add_implicit_resolver(
         'tag:yaml.org,2002:float',
         re.compile(r'''^(?:[-+]?(?:[0-9][0-9_]*)\.[0-9_]*(?:[eE][-+][0-9]+)?
-                    |\.[0-9_]+(?:[eE][-+][0-9]+)?
+                    |\.[0-9][0-9_]*(?:[eE][-+][0-9]+)?
                     |[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\.[0-9_]*
                     |[-+]?\.(?:inf|Inf|INF)
                     |\.(?:nan|NaN|NAN))$''', re.X),

@@ -4,7 +4,10 @@ Pretty YAML
 Prettify YAML plugin for Sublime Text 2 & 3 (Based on [Pretty
 JSON](<https://github.com/dzhibas/SublimePrettyJson>))
 
-
+This fork uses [yamlloader](https://github.com/Phynix/yamlloader) to preserve order of keys in YAML document.
+Additionally multi-document YAML can be prettyfied.
+It does however enforce linebreaks and collapses multiline strings - this will likely only by fixable
+by using other yaml implementation, like ruamel.
 
 Installation 
 -------------

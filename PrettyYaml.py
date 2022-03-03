@@ -3,8 +3,13 @@ import sublime_plugin
 import decimal
 try:
     from . import yaml
+    from . import yamlloader
+    Loader = yamlloader.ordereddict.CSafeLoader
+    Dumper = yamlloader.ordereddict.CSafeDumper
 except (ImportError, ValueError):
     import yaml
+    Loader = yaml.Loader
+    Dumper = yaml.Dumper
 
 s = sublime.load_settings("Pretty YAML.sublime-settings")
 
@@ -25,8 +30,10 @@ class PrettyyamlCommand(sublime_plugin.TextCommand):
                 selection = region
 
             try:
-                obj = yaml.load(self.view.substr(selection))
-                self.view.replace(edit, selection, yaml.dump(obj, **s.get("dumper_args")))
+                obj = list(yaml.load_all(self.view.substr(selection), Loader=Loader))
+                print(obj)
+                dumper_args = s.get("dumper_args") or {}
+                self.view.replace(edit, selection, yaml.dump_all(obj, Dumper=Dumper, **dumper_args))
 
                 if selected_entire_file:
                     self.change_syntax()
